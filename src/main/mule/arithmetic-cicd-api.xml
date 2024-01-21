@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="011ff4f3-0a3d-46de-8d4d-9558d94d075e" >
+		<http:listener-connection host="0.0.0.0" port="${http.port}" />
+	</http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="667254fe-01c0-46bb-a4fe-317174f4b48c" file="config-dev.yaml" />
+	<flow name="arithmetic-cicd-apiFlow" doc:id="6049b44d-2d3e-4534-9216-4a4a4ed5ad31" >
+		<http:listener doc:name="Listener" doc:id="4e771729-b8f7-4f0f-b9ba-a0ebdd764065" config-ref="HTTP_Listener_config" path="/cicd"/>
+		<set-variable value="#[attributes.queryParams.num1]" doc:name="number1" doc:id="119eec61-6e8d-41ba-9b73-6e8ffb316083" variableName="num1"/>
+		<set-variable value="#[attributes.queryParams.num2]" doc:name="number2" doc:id="458ec89a-5e40-4937-bd7c-3b2c2dc0a170" variableName="num2"/>
+		<ee:transform doc:name="Transform Message" doc:id="67647d85-4b0d-41aa-b214-ba96a8f4cb9a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message":p('log.message'),
+	"addition":(vars.num1 as Number + vars.num2 as Number),
+	"substraction":(vars.num1 as Number - vars.num2 as Number),
+	"multiplication":(vars.num1 as Number * vars.num2 as Number),
+	"division":(vars.num1 as Number / vars.num2 as Number)
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
